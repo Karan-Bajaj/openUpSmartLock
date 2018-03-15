@@ -1,4 +1,64 @@
 
+#include <Servo.h>
+
+Servo myservo; 
+
+int buttonPin=2;
+int piezoPin=3;
+int servoPin=9;
+
+
+void setup() {
+
+  Serial.begin(9600); //FOR BUTTON
+  pinMode(2,INPUT);
+
+  myservo.attach(9); // FOR MOTOR
+  
+
+  
+}
+
+void openUp()
+{
+  myservo.write(180);
+  delay(200);         //To let it move to the position
+  
+}
+
+
+void lockIt()
+{
+  myservo.write(0);
+  delay(200);
+}
+
+void loop()
+{
+  bool readState=digitalRead(2);
+  int val = analogRead(piezoPin);
+  Serial.println(val);
+  if (readState||val>80)
+  {
+    Serial.println("Reading");
+    openUp();
+    delay(2000);
+    lockIt();
+
+  }
+  
+  else 
+    Serial.println("Ignoring");
+  delay(1);
+
+
+  
+}
+
+
+
+
+/*
 //FOR Button
 void setup() {
   Serial.begin(9600);
@@ -15,7 +75,7 @@ void loop() {
 
   delay(1);
 }
-
+*/
 
 
 

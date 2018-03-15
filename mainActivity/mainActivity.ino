@@ -1,3 +1,26 @@
+
+//FOR Button
+void setup() {
+  Serial.begin(9600);
+  pinMode(2, INPUT);
+}
+
+
+void loop() {
+  bool readState = digitalRead(2);
+  if (readState)
+    Serial.println("Reading");
+  else 
+    Serial.println("Ignoring");
+
+  delay(1);
+}
+
+
+
+
+/*
+#FOR Piezo
 int analogPin = 0  ;     // potentiometer wiper (middle terminal) connected to analog pin 
                        // outside leads to ground and +5V
 int val = 0;           // variable to store the value read
@@ -14,9 +37,10 @@ void loop()
   delay(100);
 }
 
-
+*/
 
 /*
+//FOR MOTOR
 #include <Servo.h>
 
 Servo myservo; 

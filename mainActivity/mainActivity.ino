@@ -96,7 +96,7 @@ void loop()
     else
     {
       Serial.println("ok");
-      while(readState)
+      while(readState && cnt<5)
       {
     
         while(val<minKnockSound)  //Rising edge of sound wave signal
@@ -114,10 +114,11 @@ void loop()
 
         val=analogRead(piezoPin);
         
-        while(val<minKnockSound)
+        while(val<minKnockSound&&cnt<5)
         {
           val=analogRead(piezoPin);
           Serial.println("In3");
+          
         }
         
         Serial.println("In4");
@@ -132,10 +133,13 @@ void loop()
     }
     
   }
-
-  for(int i=0; i<10;i++)
+  if(pswrdAr[0]!=0)
   {
-    Serial.println(pswrdAr[i]);
+    for(int i=0; i<10;i++)
+    {
+      Serial.println(pswrdAr[i]);
+      delay(20000);
+    }
   }
   /*
   if (readState||val>80)

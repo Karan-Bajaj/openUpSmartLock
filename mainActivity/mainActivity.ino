@@ -9,7 +9,7 @@ int servoPin=9;
 
 
 const int minKnockSound= 90;
-const int adjFact = 2000; //In percent for accuracy of knock
+const int adjFact = 1000; //In percent for accuracy of knock
 
 
 void setup() {
@@ -64,10 +64,19 @@ int storePassword(int &pswrdAr, int cnt)
 }*/
 
 int cnt=0;
+int cnt2=0;
+int numKnocks=2;
+
 int timeStart=0;
 int timeEnd=0;
+int timeStart2=0;
+int timeEnd2=0;
+
 bool pswrdStored=false;
 int pswrdAr[5]={0};
+bool pwCor=false;
+
+
  
 void loop()
 {
@@ -95,14 +104,15 @@ void loop()
     {
       Serial.println("Programming password");
       delay(500);
-      while(cnt<1)
+
+      while(val<minKnockSound)  //Rising edge of sound wave signal
       {
-    
-        while(val<minKnockSound)  //Rising edge of sound wave signal
-        {
-          val=analogRead(piezoPin);
-          Serial.println("In1");
-        }
+        val=analogRead(piezoPin);
+        Serial.println("In1");
+      }
+      
+      while(cnt<numKnocks)
+      {
     
         while(val>=minKnockSound)  //Falling edge of sound wave signal
         {
@@ -121,17 +131,20 @@ void loop()
         
         int timeEnd=millis();
         Serial.println("In4");
-        delay(2000);
         
-        pswrdAr[cnt]=timeEnd-timeStart; 
-        Serial.println("Stored value is: ");
-        Serial.println(pswrdAr[cnt]);
-        Serial.println(".");
-        delay(2000);
+        pswrdAr[cnt]=timeEnd-timeStart;
         cnt++;
        
       }
 
+      for(int i=0; i<2; i++)
+      {
+        Serial.println("Stored value is: ");
+        Serial.println(pswrdAr[i]);
+        Serial.println(".");
+      }
+      
+      delay(2000);
       pswrdStored=true;
             
     }
@@ -140,56 +153,71 @@ void loop()
     
     else if(pswrdStored)  //User attempts knocking pattern to open lock
     {
+ 
+      cnt2=0;
+ 
       while(val<minKnockSound)  //Rising edge of sound wave signal
       {
         val=analogRead(piezoPin);
-        Serial.println("In5");
+        Serial.println("In1.1");
       }
-    
-      while(val>=minKnockSound)  //Falling edge of sound wave signal
+
+      while(cnt2<numKnocks)
       {
-        val=analogRead(piezoPin);
-        Serial.println("In6");
-      }
-
-      int timeStart2=millis();  
-
-      val=analogRead(piezoPin);
         
-      while(val<minKnockSound)
-      {
+        while(val>=minKnockSound)  //Falling edge of sound wave signal
+        {
+          val=analogRead(piezoPin);
+          Serial.println("In2.1");
+        }
+  
+        int timeStart2=millis();  
+  
         val=analogRead(piezoPin);
-        Serial.println("In7");
           
-      }
-        
-      int timeEnd2=millis();
-      Serial.println("In8");
-      delay(2000);
-        
-      int foo=timeEnd2-timeStart2; 
-      if( (pswrdAr[cnt-1]-adjFact)>=foo || foo>=(pswrdAr[cnt-1]+adjFact))
-      {
-        Serial.println("Your entry: ");
-        Serial.println(foo);
-        Serial.println(".");
-        delay(2000);
-        return 0;
-      }
+        while(val<minKnockSound)
+        {
+          val=analogRead(piezoPin);
+          Serial.println("In3.1");  
+        }
+          
+        timeEnd2=millis();
+        Serial.println("In4.1");
+          
+        int foo=timeEnd2-timeStart2; 
+        if( (pswrdAr[cnt2]-adjFact)>=foo || foo>=(pswrdAr[cnt2]+adjFact))
+        {
+          Serial.println("False.Your entry: ");
+          Serial.println(foo);
+          Serial.println(pswrdAr[cnt2]);
+          Serial.println(".");
+          delay(2000);
+          pwCor=false;
+        }
+  
+        else
+        {
+          Serial.println("Correct...");
+          Serial.println(foo);
+          Serial.println(pswrdAr[cnt2]);
+          Serial.println(".");
+          pwCor=true;
+        }
 
-      else
-      {
-        Serial.println("Correct password. Welcome! ");
-        Serial.println(foo);
-        Serial.println(pswrdAr[cnt-1]);
-        Serial.println(".");
-        openUp();
-        delay(2000);
-        lockIt();
-        delay(2000);
+        cnt2++;
+      
       }
       
-    
+      if(pwCor)
+      {
+          Serial.println("Correct password. Welcome! ");
+          openUp();
+          delay(2000);
+          lockIt();
+          delay(2000);
+      }
+      else
+        Serial.println("False password.");
     }
     
         

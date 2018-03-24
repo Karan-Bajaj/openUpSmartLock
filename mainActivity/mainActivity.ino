@@ -1,4 +1,3 @@
-
 #include <Servo.h>
 
 Servo myservo; 
@@ -6,60 +5,98 @@ Servo myservo;
 int buttonPin=2;
 int piezoPin=3;
 int servoPin=9;
+int redPin=10;
+int greenPin=11;
 
 
-void setup() {
-
+void setup() 
+{
   Serial.begin(9600); //FOR BUTTON
   pinMode(2,INPUT);
 
-  myservo.attach(9); // FOR MOTOR
-  
+  myservo.attach(9); // FOR MOTOR  
 }
+
 
 void openUp()
 {
   myservo.write(180);
-  delay(200);         //To let it move to the position
-  
+  delay(500);         //To let it move to the position
 }
 
 
 void lockIt()
 {
-  myservo.write(20);
-  delay(200);
+  myservo.write(0);
+  delay(500);
+}
+
+
+void blinkGrFast(int times)
+{
+  for(int i=0;i<times;i++)
+  {
+    analogWrite(greenPin,255);
+    delay(200);
+    analogWrite(greenPin,0);
+    delay(200);
+  }
+}
+
+
+void blinkRdFast(int times)
+{
+  for(int i=0;i<times;i++)
+  {
+    analogWrite(redPin,255);
+    delay(200);
+    analogWrite(redPin,0);
+    delay(200);
+  }
+}
+
+
+void fadeGr(int times)
+{
+  for(int i=0;i<times;i++)
+  {
+    for(int j=0; j<=255; j++)
+    {
+      analogWrite(greenPin,j);
+      delay(1);
+    }
+
+    for(int j=255; j>=0; j--)
+    {
+      analogWrite(greenPin,j);
+      delay(1);
+    }
+  }
+}
+
+
+void fadeRd()
+{
+  for(int i=0;i<times;i++)
+  {
+    for(int j=0; j<=255; j++)
+    {
+      analogWrite(redPin,j);
+      delay(1);
+    }
+
+    for(int j=255; j>=0; j--)
+    {
+      analogWrite(redPin,j);
+      delay(1);
+    }
+  }  
 }
 
 
 /*
-
-int storePassword(int &pswrdAr, int cnt)
-{
-  if(pswrdAr[0]!=0)
-  {
-    timeStart=millis(); 
-  }
-
-  int val=analogRead(piezoPin);
-  
-  while(val<minKnockSound)
-  {
-    val=analogRead(piezoPin);
-  }
-  while(val>minKnockSound)
-  {
-    val=analogRead(piezoPin);
-  }
-
-  int timeEnd=millis();
-  
-  pswrdAr[cnt]=timeEnd-timeStart;
-
-  
-}*/
-
-
+int storePassword(int &pswrdAr, int cnt) <--- Consider placing here for neatness
+*/
 
 const int minKnockSound= 90;
 const int adjFact = 400; //In millisec for accuracy of knock
@@ -76,7 +113,6 @@ int timeEnd2=0;
 bool pswrdStored=false;
 int pswrdAr[numKnocks]={0};
 bool pwCor=false;
-
 
  
 void loop()
@@ -220,11 +256,8 @@ void loop()
       
       else
         Serial.println("False password.");
-    }
-    
-        
+    }     
   }
-  
 }
 
 

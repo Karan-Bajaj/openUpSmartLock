@@ -8,10 +8,6 @@ int piezoPin=3;
 int servoPin=9;
 
 
-const int minKnockSound= 90;
-const int adjFact = 1000; //In percent for accuracy of knock
-
-
 void setup() {
 
   Serial.begin(9600); //FOR BUTTON
@@ -63,9 +59,14 @@ int storePassword(int &pswrdAr, int cnt)
   
 }*/
 
+
+
+const int minKnockSound= 90;
+const int adjFact = 400; //In millisec for accuracy of knock
+
 int cnt=0;
 int cnt2=0;
-int numKnocks=2;
+const int numKnocks=4;
 
 int timeStart=0;
 int timeEnd=0;
@@ -73,7 +74,7 @@ int timeStart2=0;
 int timeEnd2=0;
 
 bool pswrdStored=false;
-int pswrdAr[5]={0};
+int pswrdAr[numKnocks]={0};
 bool pwCor=false;
 
 
@@ -84,18 +85,16 @@ void loop()
   int val = analogRead(piezoPin);
   Serial.println(val);
 
-  if (val>minKnockSound)
+  if (val>minKnockSound)  //To get an idea of value of different levels of knocks
     delay(500);
 
   //int *pswrdAr = new int[10];   Extra Feature: Dynamic memmory allocation if size goes beyond specified
   
  
-
-  
   if(readState)
   {
     
-    Serial.println("ok");
+    Serial.println("Listening");
     delay(1000);
     readState=digitalRead(2);
 
@@ -111,14 +110,14 @@ void loop()
         Serial.println("In1");
       }
       
-      while(cnt<numKnocks)
+      while(cnt<numKnocks)     //Reading critical information
       {
-    
         while(val>=minKnockSound)  //Falling edge of sound wave signal
         {
           val=analogRead(piezoPin);
           Serial.println("In2");
         }
+        
         timeStart=millis();  
 
         val=analogRead(piezoPin);
@@ -137,14 +136,14 @@ void loop()
        
       }
 
-      for(int i=0; i<2; i++)
+      for(int i=0; i<numKnocks; i++)
       {
         Serial.println("Stored value is: ");
         Serial.println(pswrdAr[i]);
         Serial.println(".");
       }
       
-      delay(2000);
+      delay(5000);
       pswrdStored=true;
             
     }
@@ -153,7 +152,7 @@ void loop()
     
     else if(pswrdStored)  //User attempts knocking pattern to open lock
     {
- 
+      
       cnt2=0;
  
       while(val<minKnockSound)  //Rising edge of sound wave signal
@@ -189,10 +188,12 @@ void loop()
         {
           Serial.println("False.Your entry: ");
           Serial.println(foo);
+          Serial.println("Expected: ");
           Serial.println(pswrdAr[cnt2]);
           Serial.println(".");
           delay(2000);
           pwCor=false;
+          return 0;
         }
   
         else
@@ -216,40 +217,15 @@ void loop()
           lockIt();
           delay(2000);
       }
+      
       else
         Serial.println("False password.");
     }
     
         
   }
-  /*
-  if(pswrdStored)
-  {
-    for(int i=0; i<=cnt;i++)
-    {
-      Serial.println(pswrdAr[i]);
-    }
-    delay(20000);
-  }
-  */
-  /*
-  if (readState||val>80)
-  {
-    Serial.println("Reading");
-    openUp();
-    delay(2000);
-    lockIt();
-
-  }
   
-  else 
-    Serial.println("Ignoring");
-  
-  
-  delay(1);
-  */
 }
-
 
 
 

@@ -71,11 +71,12 @@ void fadeGr(int times)
       analogWrite(greenPin,j);
       delay(1);
     }
+    if(times>1) delay(50);
   }
 }
 
 
-void fadeRd()
+void fadeRd(int times)
 {
   for(int i=0;i<times;i++)
   {
@@ -90,7 +91,30 @@ void fadeRd()
       analogWrite(redPin,j);
       delay(1);
     }
+    if(times>1) delay(50);
   }  
+}
+
+void grLed(bool on)
+{
+  if(on) analogWrite(greenPin,255);
+  else analogWrite(greenPin,0);
+}
+
+void rdLed(bool on)
+{
+  if(on) analogWrite(redPin,255);
+  else analogWrite(redPin,0);
+}
+
+void altRdGr()
+{
+  for(int i=0;i<3;i++)
+  {
+    blinkGrFast(1);
+    blinkRdFast(1);
+  }
+  grLed(true);
 }
 
 
@@ -98,8 +122,10 @@ void fadeRd()
 int storePassword(int &pswrdAr, int cnt) <--- Consider placing here for neatness
 */
 
-const int minKnockSound= 90;
+const int minKnockSound= 60;
 const int adjFact = 400; //In millisec for accuracy of knock
+const int lockPos=0;
+const int openPos=0;
 
 int cnt=0;
 int cnt2=0;
@@ -117,6 +143,8 @@ bool pwCor=false;
  
 void loop()
 {
+  rdLed(true);
+  
   bool readState=digitalRead(2);
   int val = analogRead(piezoPin);
   Serial.println(val);
@@ -131,13 +159,16 @@ void loop()
   {
     
     Serial.println("Listening");
-    delay(1000);
+    rdLed(false);
+    delay(500);
     readState=digitalRead(2);
 
     
     if(readState && !pswrdStored)
     {
       Serial.println("Programming password");
+      altRdGr();
+      
       delay(500);
 
       while(val<minKnockSound)  //Rising edge of sound wave signal
@@ -169,6 +200,9 @@ void loop()
         
         pswrdAr[cnt]=timeEnd-timeStart;
         cnt++;
+        grLed(false);
+        delay(100);
+        grLed(true);
        
       }
 
@@ -178,7 +212,9 @@ void loop()
         Serial.println(pswrdAr[i]);
         Serial.println(".");
       }
-      
+
+      altRdGr();
+      rdLed(true);
       delay(5000);
       pswrdStored=true;
             
@@ -188,6 +224,7 @@ void loop()
     
     else if(pswrdStored)  //User attempts knocking pattern to open lock
     {
+      fadeGr(3);
       
       cnt2=0;
  
@@ -220,15 +257,18 @@ void loop()
         Serial.println("In4.1");
           
         int foo=timeEnd2-timeStart2; 
-        if( (pswrdAr[cnt2]-adjFact)>=foo || foo>=(pswrdAr[cnt2]+adjFact))
+        if((pswrdAr[cnt2]-adjFact)>=foo || foo>=(pswrdAr[cnt2]+adjFact))
         {
           Serial.println("False.Your entry: ");
           Serial.println(foo);
           Serial.println("Expected: ");
           Serial.println(pswrdAr[cnt2]);
           Serial.println(".");
+          blinkRdFast(3);
+          
           delay(2000);
           pwCor=false;
+          
           return 0;
         }
   
@@ -239,6 +279,7 @@ void loop()
           Serial.println(pswrdAr[cnt2]);
           Serial.println(".");
           pwCor=true;
+          blinkGrFast(1);
         }
 
         cnt2++;
@@ -249,14 +290,20 @@ void loop()
       {
           Serial.println("Correct password. Welcome! ");
           openUp();
-          delay(2000);
+          grLed(true);
+
+          readState=digitalRead(2);
+
+          while(!readState)
+            readState=digitalRead(2);
           lockIt();
-          delay(2000);
       }
       
       else
         Serial.println("False password.");
-    }     
+    }
+
+    grLed(false);
   }
 }
 
